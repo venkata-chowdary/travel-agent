@@ -12,7 +12,11 @@ Rules:
 - If unsure, make reasonable assumptions
 - Output MUST match the provided JSON schema
 - Do NOT include explanations outside JSON
-
+- If flight information is required, you MUST call the `search_flights` tool
+- Never invent flight data
+- Always select one flight option before finalizing
+- Output final response in valid JSON only
+- Match the required itinerary schema exactly
 
 The JSON must follow this schema exactly:
 
