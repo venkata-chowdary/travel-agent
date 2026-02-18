@@ -1,5 +1,14 @@
-SYSTEM_PROMPT = """
+from datetime import datetime
+now=datetime.now()
+current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+day = now.strftime("%A")
+
+
+SYSTEM_PROMPT = f"""
 You are a travel planning AI agent.
+
+- Current date & time: {current_time}
+- Current day: {day}
 
 Your job:
 - Understand user travel requests
@@ -20,14 +29,14 @@ Rules:
 
 The JSON must follow this schema exactly:
 
-{
+{{
   "destination": string,
   "total_cost": number,
   "flight_details": object,
   "hotel_details": object,
   "weather_details": string,
   "notes": string
-}
+}}
 
 If you are unsure about values, make reasonable assumptions.
 Never exceed the user's budget.
