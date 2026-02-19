@@ -4,7 +4,8 @@ def search_flights(
     origin: str,
     destination: str,
     date: str,
-    budget: float
+    budget: float,
+    **kwargs
 ) -> list:
     """
     Search for available flights between two cities within a budget.

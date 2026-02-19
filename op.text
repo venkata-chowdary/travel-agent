@@ -1,0 +1,42 @@
+{
+  "destination": "Goa",
+  "total_cost": 15000.0,
+  "flight_details": {
+    "airline": "Vistara",
+    "origin": "Delhi",
+    "destination": "Goa",
+    "date": "2026-02-27",
+    "price": 7000
+  },
+  "hotel_details": {
+    "name": "Luxury Suites",
+    "city": "Goa",
+    "price_per_night": 4000,
+    "nights": 2,
+    "rating": 4.8
+  },
+  "weather_details": "Pleasant and sunny with temperatures ranging from 25°C to 32°C, perfect for beach activities.",
+  "notes": "This 3-day itinerary (2 nights) fits well within your ₹20,000 budget, providing a premium experience with Vistara and a highly-rated luxury stay. Enjoy the sunset at Anjuna beach!"
+}
+
+
+{
+  "destination": "Goa",
+  "total_cost": 12000.0,
+  "flight_details": {
+    "airline": "Vistara",
+    "origin": "Delhi",
+    "destination": "Goa",
+    "date": "2026-02-27",
+    "price": 7000
+  },
+  "hotel_details": {
+    "name": "Comfort Stay",
+    "city": "Goa",
+    "price_per_night": 2500,
+    "nights": 2,
+    "rating": 4.2
+  },
+  "weather_details": "Sunny and pleasant with temperatures ranging from 24°C to 32°C, ideal for beach activities.",
+  "notes": "This 3-day trip includes a round-trip flight and a 2-night stay at a highly-rated hotel, all within your ₹20,000 budget. Enjoy the beaches and local Goan cuisine."
+}

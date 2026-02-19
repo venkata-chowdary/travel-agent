@@ -1,23 +1,23 @@
 from exceptiongroup import catch
+import time
 from google import genai
 from config import MODEL_NAME, TEMPERATURE, MAX_OUTPUT_TOKENS
 from agent.prompts import SYSTEM_PROMPT
-from schemas.tool_schema import SEARCH_FLIGHTS_SCHEMA
-from schemas.tool_schema import SEARCH_FLIGHTS_SCHEMA
+from schemas.tool_schema import SEARCH_FLIGHTS_SCHEMA, SEARCH_HOTELS_SCHEMA,CALCULATE_TOTAL_COST_SCHEMA
 from tools.flights import search_flights
 from utils.logger import setup_logger
 from config import FALLBACK_GEMINI_MODELS
+from agent.tool import TOOL_REGISTRY
 logger = setup_logger()
 
 
 class GeminiAgent:
-    def __init__(self, api_key: str):
+
+    def __init__(self, api_key: str, output_parser=None):
         self.client = genai.Client(api_key=api_key)
-
-        self.tools = {
-            "search_flights": search_flights
-        }
-
+        self.tools = TOOL_REGISTRY
+        self.output_parser = output_parser
+        
     def run(self, user_message: str):
         logger.info(f"Agent received message: {user_message}")
         messages = [
@@ -31,7 +31,8 @@ class GeminiAgent:
             }
         ]
         
-        for i in range(5):
+        # Increased iteration limit to allow for retries
+        for i in range(10):
             logger.info(f"Iteration {i+1}...")
             response=None
             
@@ -44,19 +45,33 @@ class GeminiAgent:
                     config={
                         "temperature": TEMPERATURE,
                         "max_output_tokens": MAX_OUTPUT_TOKENS,
-                        "tools": [{"function_declarations": [SEARCH_FLIGHTS_SCHEMA]}]
+                        "tools": [{"function_declarations": [SEARCH_FLIGHTS_SCHEMA, SEARCH_HOTELS_SCHEMA, CALCULATE_TOTAL_COST_SCHEMA]}]
                     })
                     logger.info(f"Model {MODEL} succeeded.")
                     break
                 
                 except Exception as e:
-                    error=e
-                    if e.code==429:
-                        logger.warning(f"Rate limit hit for {MODEL}, trying fallback...")
+                    logger.error(f"Model {MODEL} failed with error: {repr(e)}")
+                    status_code = getattr(e, "code", None)
+
+                    if status_code == 429:
+                        import re
+                        match = re.search(r"retry in (\d+(\.\d+)?)s", str(e))
+                        if match:
+                            wait_time = float(match.group(1)) + 1  # Add 1 second buffer
+                        else:
+                            wait_time = 5 * (2 ** i) # Fallback exponential backoff
+                            
+                        logger.warning(f"Rate limit hit for {MODEL}. Waiting for {wait_time:.2f} seconds before trying fallback...")
+                        time.sleep(wait_time) 
                         continue
-                    else:
-                        raise 
-                    
+
+                    if e.__class__.__name__ in ("ConnectError", "TimeoutError"):
+                        logger.warning(f"Network error with {MODEL}, trying fallback...")
+                        time.sleep(1) 
+                        continue    
+                    raise
+
             if response is None:
                 raise RuntimeError(f"All models exhausted.")
             
@@ -90,7 +105,26 @@ class GeminiAgent:
                 })
 
             else:
-                logger.info("Final answer received.")
-                return response.text
+                logger.info("Final answer received. Validating...")
+                response_text = response.text
+                
+                if self.output_parser:
+                    try:
+                        self.output_parser.parse(response_text)
+                        logger.info("Validation successful.")
+                        return response_text
+                    except ValueError as e:
+                        logger.warning(f"Validation failed: {e}. Retrying...")
+                        messages.append({
+                            "role": "model",
+                            "parts": [{"text": response_text}]
+                        })
+                        messages.append({
+                            "role": "user",
+                            "parts": [{"text": f"Error parsing JSON: {e}. Please correct the JSON output."}]
+                        })
+                        continue
+                
+                return response_text
 
         raise RuntimeError("Max tool iterations exceeded")
