@@ -8,6 +8,7 @@ from tools.flights import search_flights
 from utils.logger import setup_logger
 from config import FALLBACK_GEMINI_MODELS
 from agent.tool import TOOL_REGISTRY
+from langsmith import traceable
 logger = setup_logger()
 
 
@@ -18,6 +19,7 @@ class GeminiAgent:
         self.tools = TOOL_REGISTRY
         self.output_parser = output_parser
         
+    @traceable(name="gemini_agent_run")
     def run(self, user_message: str):
         logger.info(f"Agent received message: {user_message}")
         messages = [

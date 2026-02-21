@@ -1,5 +1,7 @@
 # tools/flights.py
+from langsmith import traceable
 
+@traceable(name="search_hotels")
 def search_flights(
     origin: str,
     destination: str,

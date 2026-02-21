@@ -1,3 +1,6 @@
+from langsmith import traceable
+
+@traceable(name="search_flights")
 def search_hotels(
     city: str,
     nights: int,

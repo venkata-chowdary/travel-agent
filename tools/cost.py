@@ -1,3 +1,7 @@
+from langsmith import traceable
+
+@traceable(name="calculate_total_cost")
+
 def calculate_total_cost(
     flight_price: float,
     hotel_price_per_night: float,
