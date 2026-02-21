@@ -28,8 +28,8 @@ class GuardrailAgent:
     
         return self.parse_and_validate(response.text)
 
-    def parse_and_validate(self, response_text: str) -> bool:
-        """Parses the guardrail JSON response and validates the query."""
+    def parse_and_validate(self, response_text: str) -> dict:
+        """Parses the guardrail JSON response, validates the query, and returns the itinerary object."""
         
         # Clean up markdown if present
         if response_text.startswith("```json"):
@@ -48,5 +48,5 @@ class GuardrailAgent:
             logger.warning(f"Invalid query: {reason}")
             raise ValueError(f"Guardrail blocked query: {reason}")
             
-        return True
+        return guardrail_data.get("itinerary", {})
     

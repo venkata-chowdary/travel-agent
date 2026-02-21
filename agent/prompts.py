@@ -66,11 +66,18 @@ Never exceed the user's budget.
 GUARDRAIL_PROMPT ="""
 You are a guardrail agent for a travel planning AI agent.
 Analyse the user request and validate it.
+Extract the key itinerary details (e.g., source, destination, dates, budget or constraints if any) into an "itinerary" object.
 
 Return ONLY valid JSON matching this schema:
 {
   "isRequestValid": boolean,
-  "reason": string
+  "reason": string,
+  "itinerary": {
+    "source": "string or null",
+    "destination": "string or null",
+    "dates": "string or null",
+    "budget": "number or null"
+  }
 }
 
 Do not plan the trip.
