@@ -15,7 +15,7 @@ class GuardrailAgent:
         logger.info("Initializing Guardrail Agent...")
         messages = [
             {"role": "system", "parts": [{"text":GUARDRAIL_PROMPT}]},
-            {"role": "user", "parts": [{"text":user_query}]}
+            {"role": "user", "parts": [{"text": f"<request>\n{user_query}\n</request>"}]}
         ]
 
         response=self.client.models.generate_content(
